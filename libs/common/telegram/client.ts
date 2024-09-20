@@ -3,7 +3,7 @@ import { container } from "tsyringe";
 import { CommandManager, ScheduleManager } from "./managers";
 import { Injectable } from "../decorators";
 import type { Constructor } from "../interfaces";
-import type { Guard } from "./classes";
+import type { Guard, Middleware } from "./classes";
 
 @Injectable()
 export class TelegramClient extends Telegraf {
@@ -14,12 +14,20 @@ export class TelegramClient extends Telegraf {
     super(container.resolve("BOT_TOKEN"));
   }
 
-  useCommandGuards(...guards: Constructor<Guard>[]) {
-    this.commandManager.useGuards(...guards);
+  useGlobalMiddlewares(...middlewares: Constructor<Middleware>[]) {
+    this.useCommandMiddlewares(...middlewares);
   }
 
   useGlobalGuards(...guards: Constructor<Guard>[]) {
     this.useCommandGuards(...guards);
+  }
+
+  useCommandMiddlewares(...middlewares: Constructor<Middleware>[]) {
+    this.commandManager.useMiddlewares(...middlewares);
+  }
+
+  useCommandGuards(...guards: Constructor<Guard>[]) {
+    this.commandManager.useGuards(...guards);
   }
 
   async launch(onLaunch?: (() => void) | undefined): Promise<void>;
