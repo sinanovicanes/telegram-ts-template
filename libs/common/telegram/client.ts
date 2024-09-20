@@ -1,11 +1,14 @@
 import { Telegraf } from "telegraf";
 import { container } from "tsyringe";
-import { CommandManager } from "./managers";
+import { CommandManager, ScheduleManager } from "./managers";
 import { Injectable } from "../decorators";
 
 @Injectable()
 export class TelegramClient extends Telegraf {
-  constructor(private readonly commandManager: CommandManager) {
+  constructor(
+    private readonly commandManager: CommandManager,
+    private readonly scheduleManager: ScheduleManager
+  ) {
     super(container.resolve("BOT_TOKEN"));
   }
 
@@ -16,6 +19,10 @@ export class TelegramClient extends Telegraf {
   ): Promise<void>;
   async launch(config?: unknown, onLaunch?: unknown): Promise<void> {
     await this.commandManager.initialize(this);
-    await super.launch(config as any, onLaunch as any);
+    await this.scheduleManager.initialize();
+
+    super.launch(config as any, () => {
+      this.scheduleManager.start();
+    });
   }
 }
