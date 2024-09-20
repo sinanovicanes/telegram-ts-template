@@ -1,6 +1,7 @@
 import { Logger } from "@app/common";
 import { Glob } from "bun";
 import { Schedule } from "../classes";
+import { container } from "tsyringe";
 
 export class ScheduleLoader {
   private static readonly logger = new Logger(ScheduleLoader.name);
@@ -22,7 +23,7 @@ export class ScheduleLoader {
       for (const key in file) {
         if (file[key].prototype instanceof Schedule) {
           try {
-            const schedule = new file[key]();
+            const schedule = container.resolve<Schedule>(file[key]);
 
             schedules.push(schedule);
           } catch (e) {

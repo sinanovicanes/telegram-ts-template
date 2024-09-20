@@ -1,6 +1,7 @@
 import { Logger } from "@app/common";
 import { Glob } from "bun";
 import { Command } from "../classes";
+import { container } from "tsyringe";
 
 export class CommandLoader {
   private static readonly logger = new Logger(CommandLoader.name);
@@ -22,7 +23,7 @@ export class CommandLoader {
       for (const key in file) {
         if (file[key].prototype instanceof Command) {
           try {
-            const command = new file[key]();
+            const command = container.resolve<Command>(file[key]);
 
             commands.push(command);
           } catch (e) {
